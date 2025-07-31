@@ -1,153 +1,251 @@
 <sup>Esse é um feedback gerado por IA, ele pode conter erros.</sup>
 
-Você tem 9 créditos restantes para usar o sistema de feedback AI.
+Você tem 8 créditos restantes para usar o sistema de feedback AI.
 
 # Feedback para carolalvernaz:
 
-Nota final: **22.8/100**
+Nota final: **33.8/100**
 
-```markdown
-# Feedback para a Carolalvernaz 🚓✨
-
-Oi, Carol! Tudo bem? Primeiro, quero te parabenizar pelo esforço e por já ter avançado bastante no desafio da API para o Departamento de Polícia! 🎉👏
-
-## 🎉 Pontos Positivos e Conquistas Bônus
-
-- Você implementou todos os endpoints para o recurso `/casos` com todos os métodos HTTP (GET, POST, PUT, PATCH, DELETE). Isso é ótimo! Seu arquivo `routes/casosRoutes.js` está bem organizado e seguindo a arquitetura esperada para esse recurso.
-
-- Seu controlador `casosController.js` faz um bom trabalho na manipulação das requisições, incluindo validações básicas e tratamento de erros com status codes adequados (400, 404, 201, 204). Isso mostra que você já entende bastante sobre como construir uma API RESTful.
-
-- A manipulação dos dados em memória no `casosRepository.js` está bem feita, com funções claras para criar, buscar, atualizar e remover casos.
-
-- Além disso, você conseguiu implementar o filtro simples por keywords no título e descrição dos casos, que é um bônus muito bacana! Isso mostra que você está indo além do básico e explorando funcionalidades extras.
+Olá, Carol! 👋🚓 Primeiro, quero parabenizar você pelo esforço em construir essa API do Departamento de Polícia! 🎉 Você organizou muito bem o projeto, separando rotas, controllers e repositories, e já implementou vários endpoints importantes. Isso mostra que você está entendendo a arquitetura modular e o fluxo básico do Express.js, o que é essencial para projetos escaláveis. Muito bom! 👏
 
 ---
 
-## 🕵️‍♂️ Pontos que precisam de atenção e melhorias
+## O que está funcionando bem? 🌟
 
-### 1. Falta completa da funcionalidade para o recurso **Agentes**
-
-Ao analisar seu projeto, percebi que **não existe nenhum arquivo relacionado aos agentes**: nem `routes/agentesRoutes.js`, nem `controllers/agentesController.js`, nem `repositories/agentesRepository.js`. Isso é um ponto fundamental, pois o desafio pede que você implemente ambos os recursos: **agentes** e **casos**.
-
-Sem esses arquivos e suas implementações, não há como o servidor atender a nenhuma requisição relacionada a agentes, como criar, listar, atualizar ou deletar agentes. Por isso, várias funcionalidades relacionadas a agentes não funcionam.
-
-**Por que isso é tão importante?**  
-No seu código, por exemplo, na criação de um caso no `casosController.js`, você espera um campo `agente_id` que deveria referenciar um agente válido. Porém, como não existe o recurso agentes implementado, não há como validar se esse `agente_id` é válido. Isso gera falhas e testes que não passam.
-
-**O que fazer:**  
-- Crie a estrutura para o recurso agentes, seguindo o mesmo padrão que você usou para casos:
-  - **routes/agentesRoutes.js**: defina as rotas REST para agentes.
-  - **controllers/agentesController.js**: implemente as funções que manipulam as requisições.
-  - **repositories/agentesRepository.js**: armazene os agentes em memória e implemente as funções para CRUD.
-
-Assim, você vai conseguir atender a todos os requisitos do projeto e garantir que o relacionamento entre agentes e casos funcione corretamente.
+- Você criou as rotas para `/agentes` e `/casos` e as conectou corretamente no `server.js`. Isso é fundamental para o funcionamento da API.
+- Os controllers estão organizados e possuem as funções básicas para os métodos HTTP.
+- O armazenamento em memória usando arrays nos repositories está implementado e funcionando.
+- Você já trata erros 404 para recursos não encontrados, o que é um ótimo começo para o tratamento de erros.
+- Implementou validação básica para o payload no `create` de agentes e casos, rejeitando requisições mal formadas com status 400.
+- Conseguiu implementar um filtro simples para casos por palavras-chave, o que é um bônus excelente! 🎁
 
 ---
 
-### 2. Validação de IDs no formato UUID
+## Pontos que precisam de atenção e melhorias 🚨
 
-Notei que nos seus repositórios (`casosRepository.js`), os IDs são tratados como strings simples, e no seu código não existe nenhuma validação para garantir que os IDs sigam o padrão UUID. Além disso, nos testes, foi apontado que os IDs utilizados não são UUIDs.
+### 1. Validação dos IDs: falta de UUID
 
-**Por que isso importa?**  
-O uso de UUIDs como identificadores garante unicidade e é um padrão muito utilizado em APIs REST. Além disso, validar o formato dos IDs ajuda a evitar erros e a retornar respostas 400 (Bad Request) quando o ID está mal formatado.
+Percebi que você está usando o campo `id` para agentes e casos, mas não está validando se esses IDs são UUIDs. Isso é importante porque o enunciado do desafio pede que os IDs sigam esse padrão para garantir unicidade e integridade.
 
-**O que fazer:**  
-- Ao criar ou atualizar um recurso, valide se o campo `id` está presente e se é um UUID válido.
-- Você pode usar pacotes como [`uuid`](https://www.npmjs.com/package/uuid) para gerar e validar UUIDs.
-- Exemplo de validação simples usando regex para UUID:
+No seu código, por exemplo, no `controllers/agentesController.js`:
 
 ```js
-function isValidUUID(id) {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  return uuidRegex.test(id);
+const { id, nome, dataDeIncorporacao, cargo } = req.body;
+
+if (!id || !nome || !dataDeIncorporacao || !cargo) {
+  return res.status(400).json({
+    status: 400,
+    message: 'Parâmetros inválidos',
+    errors: [
+      "Campos obrigatórios: id, nome, dataDeIncorporacao, cargo"
+    ]
+  });
 }
 ```
 
-- Use essa função para validar `id` no seu controller, retornando erro 400 se o formato for inválido.
+Você só verifica se o `id` existe, mas não se ele é um UUID válido.
+
+**Por que isso é importante?**  
+Sem validar o formato do ID, pode entrar qualquer string, o que pode causar inconsistências, principalmente se futuramente o sistema se integrar com outras APIs ou bancos de dados.
+
+**Como melhorar?**  
+Você pode usar uma biblioteca como o [`validator`](https://www.npmjs.com/package/validator) para validar UUIDs, ou criar uma função simples para validar o formato.
+
+Exemplo usando `validator`:
+
+```js
+const validator = require('validator');
+
+if (!id || !validator.isUUID(id)) {
+  return res.status(400).json({
+    status: 400,
+    message: 'ID inválido: deve ser um UUID',
+    errors: ['Campo id deve ser um UUID válido']
+  });
+}
+```
+
+Se quiser, posso te ajudar a integrar isso! 😉
+
+**Recurso recomendado:**  
+Para entender melhor a validação de dados e tratamento de erros, recomendo este vídeo:  
+▶️ https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_
 
 ---
 
-### 3. Validação e tratamento de erros mais robustos
+### 2. Validação de existência do agente ao criar um caso
 
-No seu `casosController.js`, você já faz validações básicas no payload, mas há espaço para melhorias:
+No endpoint de criação de casos (`POST /casos`), você valida os campos obrigatórios, mas não está validando se o `agente_id` informado realmente existe na lista de agentes.
 
-- Na criação de casos, você valida se `status` está entre `'aberto'` e `'solucionado'`, o que é ótimo. Porém, não há validação para garantir que o `agente_id` realmente exista (como já comentei, falta o recurso agentes, mas assim que criar será possível validar).
+Isso é um problema porque um caso não pode ficar vinculado a um agente inexistente.
 
-- Nos updates (PUT e PATCH), você não está validando o formato dos dados recebidos nem se o payload está correto ou completo. Isso pode permitir dados inválidos serem salvos.
+No seu `controllers/casosController.js`:
 
-- A resposta de erro poderia ser mais consistente e descritiva, com mensagens claras para o cliente da API.
+```js
+const { id, titulo, descricao, status, agente_id } = req.body;
 
-**O que fazer:**  
-- Implemente validações completas para todos os campos esperados em cada endpoint.
-- Ao receber dados inválidos, retorne um JSON com `status`, `message` e `errors` detalhando o problema.
-- Considere criar um middleware ou função utilitária para validar dados e centralizar o tratamento de erros (por exemplo, em `utils/errorHandler.js`).
+if (!id || !titulo || !descricao || !['aberto', 'solucionado'].includes(status) || !agente_id) {
+  return res.status(400).json({
+    status: 400,
+    message: 'Parâmetros inválidos',
+    errors: [
+      "Campos obrigatórios: id, titulo, descricao, status ('aberto' ou 'solucionado'), agente_id"
+    ]
+  });
+}
 
-Para aprender mais sobre validação e tratamento de erros, recomendo:  
-👉 [Validação de dados em APIs Node.js/Express](https://youtu.be/yNDCRAz7CM8?si=Lh5u3j27j_a4w3A_)  
-👉 [Status HTTP 400 – Bad Request](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/400)  
-👉 [Status HTTP 404 – Not Found](https://developer.mozilla.org/pt-BR/docs/Web/HTTP/Status/404)
+const novoCaso = { id, titulo, descricao, status, agente_id };
+casosRepo.create(novoCaso);
+res.status(201).json(novoCaso);
+```
+
+Aqui falta uma checagem para garantir que `agente_id` esteja cadastrado no repositório de agentes.
+
+**Como corrigir?**  
+Você pode importar o `agentesRepository` e fazer uma busca antes de criar o caso:
+
+```js
+const agentesRepo = require('../repositories/agentesRepository');
+
+if (!agentesRepo.findById(agente_id)) {
+  return res.status(404).json({
+    status: 404,
+    message: 'Agente não encontrado para o agente_id informado',
+    errors: ['agente_id inválido ou inexistente']
+  });
+}
+```
+
+Assim, você evita criar casos com agentes inválidos.
 
 ---
 
-### 4. Organização e estrutura do projeto incompletas
+### 3. Validação dos payloads em PUT e PATCH para atualizações
 
-A estrutura esperada para este desafio inclui pastas e arquivos para **agentes** e **casos** em `routes/`, `controllers/` e `repositories/`, além de uma pasta `utils/` para helpers como tratamento de erros.
+Você implementou os métodos `update` e `partialUpdate` para ambos agentes e casos, mas não está validando se o payload está no formato correto para essas atualizações.
 
-No seu repositório, a pasta `routes/` só tem `casosRoutes.js`, não há nada para agentes. O mesmo vale para `controllers/` e `repositories/`.
+Por exemplo, no `update` de agentes:
 
-Além disso, não encontrei a pasta `utils/` com algum tratamento de erro ou helpers, que são muito úteis para manter o código limpo e organizado.
+```js
+function update(req, res) {
+  const atualizado = agentesRepo.update(req.params.id, req.body);
+  if (!atualizado) return res.status(404).json({ error: 'Agente não encontrado' });
+  res.status(200).json(atualizado);
+}
+```
+
+Aqui, se o corpo da requisição estiver vazio ou com campos inválidos, você ainda tenta atualizar, o que pode causar problemas.
+
+**Por que validar?**  
+Para garantir que o cliente envie dados válidos e evitar atualizar o recurso com informações incompletas ou erradas.
+
+**Dica para melhorar:**  
+Antes de chamar o repositório, valide os campos obrigatórios no `PUT` (que deve atualizar tudo) e valide os campos que podem ser atualizados no `PATCH`.
+
+Exemplo para o `PUT`:
+
+```js
+const { nome, dataDeIncorporacao, cargo } = req.body;
+if (!nome || !dataDeIncorporacao || !cargo) {
+  return res.status(400).json({
+    status: 400,
+    message: 'Payload incompleto para atualização completa',
+    errors: ['Campos obrigatórios: nome, dataDeIncorporacao, cargo']
+  });
+}
+```
+
+Para o `PATCH`, você pode validar se pelo menos um campo válido foi enviado.
+
+---
+
+### 4. Organização da estrutura do projeto
+
+Sua estrutura de diretórios está bem próxima do esperado, mas notei que não há uma pasta `utils` com um arquivo para tratamento de erros (`errorHandler.js`), que é recomendado para centralizar a lógica de tratamento e evitar repetição.
+
+Além disso, não vi o arquivo `.gitignore` incluindo a pasta `node_modules`, o que pode causar problemas ao subir seu projeto para o GitHub, já que o `node_modules` pode pesar muito e não deve ser versionado.
 
 **Por que isso importa?**  
-Manter a arquitetura modular e organizada é essencial para que seu código seja escalável, fácil de manter e de entender. Seguir a estrutura esperada também ajuda a evitar erros e facilita a correção e expansão do projeto.
+- Ter um arquivo de tratamento de erros centralizado ajuda a manter o código limpo e consistente.  
+- Ignorar `node_modules` evita subir arquivos desnecessários e mantém o repositório leve.
 
-**O que fazer:**  
-- Crie os arquivos e pastas faltantes para agentes.
-- Considere criar a pasta `utils/` e implementar um middleware para tratamento centralizado de erros.
-- Mantenha o padrão de nomeação e organização para facilitar a navegação.
-
-Para entender melhor sobre arquitetura MVC e organização de projetos Node.js, recomendo:  
-👉 [Arquitetura MVC em Node.js](https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH)  
-👉 [Roteamento no Express.js](https://expressjs.com/pt-br/guide/routing.html)
+**Recurso recomendado:**  
+Para entender melhor a arquitetura MVC e organização de projetos Node.js, recomendo este vídeo:  
+▶️ https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH
 
 ---
 
-### 5. Pequenos detalhes que fazem a diferença
+### 5. Falta de mensagens de erro customizadas para validações específicas
 
-- No seu `package.json`, o campo `"main"` está apontando para `"index.js"`, mas seu arquivo principal é `server.js`. Isso pode causar problemas ao iniciar o projeto em algumas situações.
+Você já faz um bom trabalho retornando status 400 e 404 com mensagens, mas as mensagens são genéricas. Para melhorar a experiência do consumidor da API, seria ótimo detalhar mais os erros, como por exemplo:
 
-- O `.gitignore` não está ignorando a pasta `node_modules/`. Isso pode deixar seu repositório muito pesado e com arquivos desnecessários.
+- Informar exatamente qual campo está inválido.  
+- Explicar o motivo (ex: "status deve ser 'aberto' ou 'solucionado'").  
+- Retornar um array de erros quando houver múltiplos problemas.
 
-- Essas são questões simples, mas que impactam a qualidade do seu projeto.
-
----
-
-## 👩‍🏫 Resumo Rápido para Você Focar
-
-- ✅ Criar os recursos completos para **agentes** (`routes/`, `controllers/`, `repositories/`).
-- ✅ Validar IDs como UUIDs em agentes e casos, garantindo integridade dos dados.
-- ✅ Melhorar validações no payload, principalmente em updates (PUT e PATCH).
-- ✅ Implementar tratamento de erros mais robusto e consistente.
-- ✅ Organizar a estrutura do projeto conforme o padrão esperado, incluindo a pasta `utils/`.
-- ✅ Ajustar o `package.json` para apontar o arquivo principal correto (`server.js`).
-- ✅ Adicionar `.gitignore` para ignorar `node_modules/`.
+Isso ajuda a deixar a API mais profissional e fácil de usar.
 
 ---
 
-## 🌟 Conclusão e Incentivo Final
+## Exemplo prático de melhorias no `create` de casos
 
-Carol, você está no caminho certo! Já entregou uma base sólida para os casos e mostrou que entende os conceitos principais da API REST com Express. Agora, focando nas melhorias que destaquei, especialmente na implementação do recurso agentes e nas validações, seu projeto vai ficar muito mais completo e profissional.
+```js
+const agentesRepo = require('../repositories/agentesRepository');
 
-Continue firme, aproveite os recursos que recomendei para aprofundar seus conhecimentos e não hesite em perguntar se precisar de ajuda. Você tem muito potencial para evoluir ainda mais! 🚀💪
+function create(req, res) {
+  const { id, titulo, descricao, status, agente_id } = req.body;
 
----
+  if (!id || !titulo || !descricao || !status || !agente_id) {
+    return res.status(400).json({
+      status: 400,
+      message: 'Campos obrigatórios faltando',
+      errors: ['id, titulo, descricao, status e agente_id são obrigatórios']
+    });
+  }
 
-Se quiser revisar conceitos básicos de Express e arquitetura MVC, esses vídeos são ouro:  
-- https://youtu.be/RSZHvQomeKE (Express básico)  
-- https://youtu.be/bGN_xNc4A1k?si=Nj38J_8RpgsdQ-QH (Arquitetura MVC)  
+  if (!['aberto', 'solucionado'].includes(status)) {
+    return res.status(400).json({
+      status: 400,
+      message: 'Status inválido',
+      errors: ["O campo 'status' deve ser 'aberto' ou 'solucionado'"]
+    });
+  }
 
-Boa codificação e até a próxima! 👋😊  
-Seu Code Buddy
+  if (!agentesRepo.findById(agente_id)) {
+    return res.status(404).json({
+      status: 404,
+      message: 'Agente não encontrado para o agente_id informado',
+      errors: ['agente_id inválido ou inexistente']
+    });
+  }
+
+  // Aqui você pode validar se o id é UUID também
+
+  const novoCaso = { id, titulo, descricao, status, agente_id };
+  casosRepo.create(novoCaso);
+  res.status(201).json(novoCaso);
+}
 ```
+
+---
+
+## Resumo rápido para você focar:
+
+- ✅ Continue com a organização modular do projeto (rotas, controllers, repositories).  
+- 🚨 Valide que os IDs usados para agentes e casos são UUIDs válidos.  
+- 🚨 Na criação de casos, valide se o `agente_id` existe no repositório de agentes antes de criar o caso.  
+- 🚨 Faça validações mais robustas em PUT e PATCH para garantir payloads completos e corretos.  
+- 🛠️ Crie um arquivo para tratamento centralizado de erros (ex: `utils/errorHandler.js`) para evitar repetição.  
+- 🛑 Ajuste o `.gitignore` para incluir `node_modules` e evitar subir arquivos desnecessários.  
+- ✨ Melhore as mensagens de erro para serem mais detalhadas e amigáveis.  
+
+---
+
+Carol, você está no caminho certo e já entregou uma base muito boa! 🚀 Com esses ajustes, sua API vai ficar mais robusta, confiável e profissional. Continue praticando, validando seus dados e pensando na experiência do usuário da API. Se precisar, dê uma olhada nos vídeos que recomendei para fortalecer seu conhecimento. Estou aqui torcendo pelo seu sucesso! 💪😊
+
+Se quiser, posso ajudar a montar juntos algum desses trechos de código para você entender melhor. Vamos nessa? 👩‍💻👨‍💻
+
+Abraço e até a próxima! 👋✨
 
 > Caso queira tirar uma dúvida específica, entre em contato com o Chapter no nosso [discord](https://discord.gg/DryuHVnz).
 
