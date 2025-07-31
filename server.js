@@ -1,16 +1,22 @@
 const express = require('express');
 const app = express();
-const PORT = 3000;
-
 const casosRoutes = require('./routes/casosRoutes');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./docs/swagger');
+const agentesRoutes = require('./routes/agentesRoutes'); // ✅ Novo
 
+// Middleware para aceitar JSON
 app.use(express.json());
 
+// Rotas principais
 app.use('/casos', casosRoutes);
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/agentes', agentesRoutes); // ✅ Novo
 
+// Rota base
+app.get('/', (req, res) => {
+  res.send('API do Departamento de Polícia - Etapa 2');
+});
+
+// Porta do servidor
+const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor do Departamento de Polícia rodando em http://localhost:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT} 🚓`);
 });
